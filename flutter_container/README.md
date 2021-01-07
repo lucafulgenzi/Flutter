@@ -1,3 +1,3 @@
-# flutter_container
+# Container
 
-Flutter app to test Flutter Container
+### Simple application with containers

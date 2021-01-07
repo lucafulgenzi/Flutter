@@ -1,3 +1,3 @@
-# flutter_iamge
+# Image Widget
 
-Flutter image test
+### Simple application with image widget

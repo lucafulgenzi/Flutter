@@ -1,3 +1,3 @@
-# flutter_text_widget
+# Text widget
 
-Text Widget test
+### Simple application with text widget

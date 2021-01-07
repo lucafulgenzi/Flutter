@@ -1,4 +1,6 @@
-# flutter_note_app
+# Note App
+
+### Basic note app with http request
 
 - [x] Add note
 - [x] Remove note
