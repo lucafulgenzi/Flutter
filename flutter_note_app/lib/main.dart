@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_note_app/classes/Note.dart';
+import 'package:flutter_note_app/services/note_service.dart';
 
 void main() => runApp(MyApp());
 
@@ -24,6 +26,9 @@ class _MyHomeState extends State<MyHome> {
   List<String> noteList = new List();
   final myController = TextEditingController();
   final dialogController = TextEditingController();
+
+  Future<Note> _futureNote;
+  final HttpService note_service = HttpService();
 
   void dispose() {
     myController.dispose();
@@ -66,7 +71,7 @@ class _MyHomeState extends State<MyHome> {
                           onPressed: () {
                             if (myController.text.isNotEmpty) {
                               setState(() {
-                                noteList.add(myController.text);
+                                note_service.addNote(myController.text);
                                 myController.clear();
                               });
                             }
@@ -76,58 +81,69 @@ class _MyHomeState extends State<MyHome> {
                 ],
               )),
           Expanded(
-              child: ListView.builder(
-                  itemCount: noteList.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      child: ListTile(
-                          title: new Text(noteList[index]),
-                          leading: GestureDetector(
-                            child: Icon(Icons.edit),
-                            onTap: () {
-                              print('click modify');
-                              return showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text('Modify note'),
-                                      content: TextField(
-                                        controller: dialogController,
-                                        decoration: InputDecoration(
-                                            hintText: 'Enter note...'),
-                                      ),
-                                      actions: <Widget>[
-                                        FlatButton(
-                                            onPressed: () {
-                                              if (dialogController
-                                                  .text.isNotEmpty) {
-                                                setState(() {
-                                                  noteList.replaceRange(
-                                                      index,
-                                                      index + 1,
-                                                      [dialogController.text]);
-                                                  dialogController.clear();
-                                                  Navigator.pop(context);
-                                                });
-                                              }
-                                            },
-                                            child: Text('Save'))
-                                      ],
-                                    );
-                                  });
-                            },
-                          ),
-                          trailing: GestureDetector(
-                              child: Icon(
-                                Icons.delete,
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  noteList.removeAt(index);
-                                });
-                              })),
-                    );
-                  }))
+              child: FutureBuilder(
+            future: note_service.getAllNote(),
+            builder:
+                (BuildContext context, AsyncSnapshot<List<Note>> snapshot) {
+              if (snapshot.hasData) {
+                List<Note> notes = snapshot.data;
+                return ListView(
+                  children: notes
+                      .map((Note note) => Card(
+                            child: ListTile(
+                                title: Text(note.title),
+                                leading: GestureDetector(
+                                  child: Icon(Icons.edit),
+                                  onTap: () {
+                                    return showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            title: Text('Modify note'),
+                                            content: TextField(
+                                              controller: dialogController,
+                                              decoration: InputDecoration(
+                                                  hintText: 'Enter note...'),
+                                            ),
+                                            actions: <Widget>[
+                                              FlatButton(
+                                                  onPressed: () {
+                                                    if (dialogController
+                                                        .text.isNotEmpty) {
+                                                      setState(() {
+                                                        note_service.editNote(
+                                                            dialogController
+                                                                .text,
+                                                            note.id);
+                                                        dialogController
+                                                            .clear();
+                                                        Navigator.pop(context);
+                                                      });
+                                                    }
+                                                  },
+                                                  child: Text('Save'))
+                                            ],
+                                          );
+                                        });
+                                  },
+                                ),
+                                trailing: GestureDetector(
+                                    child: Icon(
+                                      Icons.delete,
+                                    ),
+                                    onTap: () {
+                                      setState(() {
+                                        note_service.deleteNote(note.id);
+                                      });
+                                    })),
+                          ))
+                      .toList(),
+                );
+              } else if (snapshot.hasError) {
+                return Text('${snapshot.error}');
+              }
+            },
+          ))
         ],
       ),
     );

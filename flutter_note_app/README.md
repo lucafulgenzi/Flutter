@@ -2,6 +2,7 @@
 
 - [x] Add note
 - [x] Remove note
-- [ ] Add to MongoDB
-- [ ] Remove from MongoDB
 - [x] Modify note
+- [x] Add to MongoDB
+- [x] Remove from MongoDB
+- [x] Edit from MongoDB
